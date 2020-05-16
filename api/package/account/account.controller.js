@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken'
 import config from '../../config'
 import bcrypt from 'bcrypt'
+const accountModel = require('./account.model')
+
 const mockUser = {
   username: 'hieu97',
   password: '12345',
@@ -140,14 +142,23 @@ async function signUp (req, res) {
   }
 }
 
-async function getListAccounts (req, res) {
-  try {
-    console.log(req.credentials)
-    return res.status(200).json({
-       message: 'có quyền admin'
-    })
-  } catch (error) {
+// async function getListAccounts (req, res) {
+//   try {
+//     console.log(req.credentials)
+//     return res.status(200).json({
+//        message: 'có quyền admin'
+//     })
+//   } catch (error) {
     
+//   }
+// }
+
+const getListAccounts = async (req, res) => {
+  try {
+    let result = await accountModel.getAllAccounts();
+    res.json(result);
+  } catch (err) {
+    res.json(err + '');
   }
 }
 
