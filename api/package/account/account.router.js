@@ -7,6 +7,6 @@ router.post('/auth/login', AccountController.signIn)
 router.post('/auth/sign-up', AccountController.signUp)
 
 router.get('/admin/get-accounts',checkIsAdmin, AccountController.getListAccounts)
-
+router.get('/admin/account/:accountID', checkIsAdmin, AccountController.getAccount)
 
 export default router

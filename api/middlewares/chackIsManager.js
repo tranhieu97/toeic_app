@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import config from '../config'
 
 
-async function authenticate (req, res, next) {
+async function checkIsManager (req, res, next) {
   const accessToken = req.headers.authorization
 
   if(!accessToken || accessToken == undefined ) {
@@ -23,6 +23,7 @@ async function authenticate (req, res, next) {
 
   const decode = await jwt.decode(token, config.secret)
   
+
   if (!decode) {
     return res.status(401).json({
       isSuccess: false,
@@ -30,9 +31,22 @@ async function authenticate (req, res, next) {
     })
   }
 
+  if(decode.isAdmin) {
+    req.user = decode
+    return next()
+  }
+
+  if (!decode.isManager) {
+    return res.status(401).json({
+      isSuccess: false,
+      message: 'invalid access token to role manager'
+    })
+  }
+
+
   req.user = decode
 
-  next()
+  return next()
 }
 
-export default authenticate
+export default checkIsAdmin

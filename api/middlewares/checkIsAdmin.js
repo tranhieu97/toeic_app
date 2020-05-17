@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import config from '../config'
 
+
 async function checkIsAdmin (req, res, next) {
   const accessToken = req.headers.authorization
 
@@ -21,6 +22,13 @@ async function checkIsAdmin (req, res, next) {
   }
 
   const decode = await jwt.decode(token, config.secret)
+
+  if(!decode) {
+    return res.status(401).json({
+      isSuccess: false,
+      message: 'invalid access token'
+    })
+  }
   
   if (!decode.isAdmin) {
     return res.status(401).json({
