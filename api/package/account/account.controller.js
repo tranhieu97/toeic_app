@@ -3,11 +3,7 @@ import config from '../../config'
 import bcrypt from 'bcrypt'
 import accountsModel from './account.service'
 import accountService from './account.service'
-const mockUser = {
-  username: 'hieu97',
-  password: '12345',
-  isAdmin: true
-}
+
 async function signIn (req, res) {
   try {
     const { username, password } = req.body
