@@ -6,12 +6,11 @@ const router = Router()
 router.post('/auth/login', AccountController.signIn)
 router.post('/auth/sign-up', AccountController.signUp)
 
-<<<<<<< HEAD
-router.get('/admin/get-accounts',checkIsAdmin, AccountController.getListAccounts)
+router.get('/admin/account/get-list',checkIsAdmin, AccountController.getListAccounts)
 router.get('/admin/account/:accountID', checkIsAdmin, AccountController.getAccount)
-=======
-router.get('/admin/get-accounts', AccountController.getListAccounts)
-
->>>>>>> 99d0318b669b1951c4863a9aeea2975961ef6e5b
+router.post('/admin/account/create', checkIsAdmin, AccountController.createAccount)
+router.put('/admin/account/update/:accountID', checkIsAdmin, AccountController.updateAccount)
+router.delete('/admin/account/delete/:accountID', checkIsAdmin, AccountController.deleteAccount)
+router.put('/admin/account/changeLock/:accountID', checkIsAdmin, AccountController.changeLockAccount)
 
 export default router

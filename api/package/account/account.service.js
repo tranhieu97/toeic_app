@@ -1,13 +1,12 @@
-const mockAccount = {
-  accountID : '12345678',
-  username: 'hieu97',
-}
+import accountModel from './account.model'
+
+
 const findOne = async ({query, cridentials}) => {
   return new Promise( ( resolve, reject ) => {
-    // gọi model để query tìm account ra 
-    if ( query.accountID === mockAccount.accountID ) {
-      console.log(query)
-      resolve(mockAccount)
+    const account = accountModel.getAccountByID(query.accountID) 
+
+    if (account) {
+      resolve(account)
     }
 
     const error = {
@@ -19,28 +18,132 @@ const findOne = async ({query, cridentials}) => {
   })
 }
 
-const createOne = async ({query, cridentials, dataCreate}) => {
-  return new Promise ( (resolve, reject ) => {
+const createOne = async ({ cridentials, dataCreate}) => {
 
-    // thực hiên gọi createOne đây
+  return new Promise ( async (resolve, reject ) => {
 
-    const isUpdate = true
-    
-    if (isUpdate) {
-      resolve(true)
+    const account = await accountModel.getAccountByEmail(dataCreate.email)
+
+    if (account) {
+      return reject({
+        code: 400,
+        name: 'DuplicateAccount'
+      })
+    }
+    const newAccount = await accountModel.insertAccount(dataCreate) 
+    let isCreated = false
+    if (newAccount) {
+      isCreated = true
+    }
+  
+    if (isCreated) {
+      return resolve(true)
+    }
+
+    const error = {
+      code: 400,
+      name: 'QueryError'
+    }
+
+    reject(error)
+  })
+}
+
+const findManyAccount = async ({query, cridentials}) => {
+  const accounts = await accountModel.getAllAccounts()
+
+  return new Promise ( (resolve, reject) => {
+    if (accounts && accounts.length) {
+      resolve(accounts)
     }
 
     const error = {
       code: 404,
       name: 'AccountNotFound'
     }
-
+    
     reject(error)
+
+
+  })
+}
+
+const updateOne = async (account, accountID) => {
+  return new Promise( async (resolve, reject) => {
+    const findAccount = await accountModel.getAccountByID(accountID)
+
+    if (!findAccount) {
+      const error = {
+        code: 404,
+        name: 'AccountNotFound'
+      }
+      reject(error)
+    }
+
+    const isUpdate = await accountModel.updateAccount(accountID, account) 
+    console.log(isUpdate)
+
+    if (isUpdate) {
+      resolve(true)
+    }
+
+    const notfounderror = {
+      code: 404,
+      name: 'AccountNotFound'
+    }
+    reject(notfounderror)
+  })
+}
+
+const deleteOne = async (accountID) => {
+  return new Promise ( async (resolve, reject ) => {
+    const findAccount = await accountModel.getAccountByID(accountID)
+
+    if(!findAccount) {
+      let error = {
+        code: 404,
+        name: 'AccountNotFound'
+      }
+
+      reject(error)
+    }
+
+    await accountModel.deleteAccount(accountID)
+
+    resolve(true)
+
+  })
+}
+
+const changeLock = async (accountID) => {
+  return new Promise ( async (resolve, reject) => {
+    const account = await accountModel.getAccountByID(accountID) 
+
+    if(!account) {
+      let error = {
+        code: 404,
+        name: 'AccountNotFound'
+      }
+  
+      reject(error)
+      
+    }
+    console.log(account)
+
+    const status =(account.status === 'active')? 'lock': 'active'
+    await accountModel.updateLock(accountID, status)
+
+    resolve(true)
+    
   })
 }
 
 export default {
   findOne,
   createOne,
-  
+  findManyAccount,
+  updateOne,
+  deleteOne,
+  changeLock
+
 }
