@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import config from '../../config'
 import bcrypt from 'bcrypt'
-import accountsModel from './account.service'
+import accountsModel from './account.model'
 import accountService from './account.service'
 
 async function signIn (req, res) {
@@ -32,9 +32,9 @@ async function signIn (req, res) {
       })
     }
 
-    const account = mockUser // finding a user 
-    
-    if (username !== account.username) {
+    const account = await accountsModel.getAccountByUsername(username) // finding a user 
+  
+    if (!account) {
       return res.status(401).json({
         isSuccess: false,
         message: 'invalid username',
@@ -42,7 +42,17 @@ async function signIn (req, res) {
       })
     }
 
-    if (password !== account.password) {
+    if(account.status === 'lock') {
+      return res.status(403).json({
+        isSuccess: false,
+        message: 'your account is lock',
+        data: null,
+      })
+    }
+
+    const isCorrectPassword = await bcrypt.compare(password, account.password)
+
+    if (!isCorrectPassword) {
       return res.status(401).json({
         isSuccess: false,
         message: 'invalid password',
@@ -50,9 +60,19 @@ async function signIn (req, res) {
       })
     }
 
-    account.password = undefined
+    delete account.password 
 
-    const accessToken = await jwt.sign(account, config.secret, { expiresIn: '7d' })
+    console.log(account)
+
+    const isAdmin = account.role_name == 'admin'? true: false
+    const isManager = account.role_name == 'editor'? true: false
+    const payload = {
+      username: account.username,
+      role: account.role_id,
+      isAdmin,
+      isManager
+    }
+    const accessToken = await jwt.sign(payload, config.secret, { expiresIn: '7d' })
 
     return res.status(200).json({
       isSuccess: true,
@@ -63,6 +83,7 @@ async function signIn (req, res) {
     })
 
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       message: 'Internal server error'
     })
@@ -148,14 +169,13 @@ async function getListAccounts (req, res) {
       cursor: '',
     }
 
+    const credentials = req.user
+
     //query
 
-    const accounts = {
-      list: [],
-      cursor: 'idAccount'
-    }
+    const accounts = await accountService.findManyAccount({query: null, credentials})
     
-    return res.status(200).json(accounts)
+    return res.status(200).json({data: {list: accounts}})
 
   } catch (error) {
     return res.status(500).json(error)
@@ -164,9 +184,10 @@ async function getListAccounts (req, res) {
 
 async function createAccount (req, res) {
   try {
-    const { firstName, lastName, email, password, role } = req.body
+    const { fullName, username, email, password, roleId } = req.body
 
-    if (firstName == undefined || lastName == undefined || email == undefined || password == undefined ) {
+    const credentials = req.user
+    if (fullName == undefined || username == undefined || email == undefined || password == undefined || roleId == undefined ) {
       return res.status(400).json({
         isSuccess: false,
         message: 'validate error',
@@ -174,7 +195,16 @@ async function createAccount (req, res) {
       })
     }
 
-    if (firstName === '') {
+    if (username === '') {
+      return res.status(400).json({
+        isSuccess: false,
+        message: 'username must not be blank',
+        data: null,
+      })
+    }
+
+
+    if (fullName === '') {
       return res.status(400).json({
         isSuccess: false,
         message: 'firstName must not be blank',
@@ -198,32 +228,32 @@ async function createAccount (req, res) {
       })
     }
 
-    const existAccount = await accountService.findOne({
-      query: { 
-        email,
-      },
-      cridentials: req.user
-    })
-
-    if (existAccount) {
-      return res.status(401).json({
+    if(roleId === '') {
+      return res.status(400).json({
         isSuccess: false,
-        message: 'email address is already exist',
-        data: null
+        message: 'you must choose role for this account',
+        data: null,
       })
     }
     
     const hashPass = await bcrypt.hash(password, 10)
 
     const isValidRole = true
-    // create account
+    
     const newAccount = {
-      firstName,
-      lastName,
+      fullName,
+      username,
       email,
       password: hashPass,
-      role: role,
+      roleId,
     }
+
+    console.log(newAccount)
+
+    await accountService.createOne({
+      credentials,
+      dataCreate: newAccount,
+    })
 
     return res.status(200).json(newAccount)
     
@@ -235,20 +265,17 @@ async function createAccount (req, res) {
 async function updateAccount (req, res) {
   try {
     const credentials = req.user
-    const { firstName, lastName, email, password, role } = req.body
+    const { fullName, username, email, password, roleID } = req.body
     const { accountID } = req.params
+    const hashPass = await bcrypt.hash(password, 10)
     const updateAccount = {
-      firstName,
-      lastName,
+      fullName,
+      username,
       email,
-      password,
-      role,
+      password: hashPass,
+      role: roleID,
     }
-    const isUpdate = await accountsModel.update({
-      query: { accountID: accountID },
-      credentials,
-      updateData: updateAccount,
-    }) 
+    const isUpdate = await accountService.updateOne(updateAccount, accountID) 
 
     if (!isUpdate) {
       return res.status(401).json({
@@ -257,7 +284,7 @@ async function updateAccount (req, res) {
       })
     }
 
-    return res.json(200).json({
+    return res.status(200).json({
       isUpdate: true,
       message: 'updated account'
     })
@@ -270,7 +297,7 @@ async function getAccount (req, res) {
   try {
     const { accountID } = req.params
     const credentials = req.user
-    const account = await accountsModel.findOne({
+    const account = await accountService.findOne({
       query: { accountID: accountID },
       credentials: credentials,
     })
@@ -282,7 +309,11 @@ async function getAccount (req, res) {
       })
     }
 
-    return res.status(200).json(account)
+    return res.status(200).json({
+      isSuccess: true,
+      message: 'get account',
+      data: account
+    })
 
   } catch (error) {
 
@@ -291,31 +322,26 @@ async function getAccount (req, res) {
   }
 }
 
-async function deleteAccount (req, res) {
+async function deleteAccount(req, res) {
   try {
     const { accountID } = req.params
 
-    const credentials = req.user
+    const isDelete = await accountService.deleteOne(accountID)
 
-    const isDelete = await accountsModel.deleteOne({
-      query: { accountID: accountID, },
-      credentials,
-    })
-
-    if (!isDelete) {
-      return res.status(404).json({
-        isDelete: false,
-        message: 'AccountNotFound',
-        data: null
+    if(isDelete) {
+      return res.status(200).json({
+        isSuccess: true,
+        message: 'deleted account'
       })
     }
-    
-    return res.status(200).json({
-      isDelete: true,
-      message: 'deleted account',
+
+    return res.status(404).json({
+      isSuccess: true,
+      message: 'cannot delete account'
     })
+
   } catch (error) {
-    return res.json(error)
+    return res.status(404).json(error)
   }
 }
 
@@ -324,12 +350,9 @@ async function changeLockAccount (req, res) {
     const { accountID } = req.params
     const credentials = req.user
 
-    const isChangeLock = await accountsModel.changeLock({
-      query: { accountID: accountID },
-      credentials: credentials
-    })
+    const isChangeLock = await accountService.changeLock(accountID)
 
-    if (isChangeLock) {
+    if (!isChangeLock) {
       return res.status(404).json({
         isChangeLock: false,
         message: 'AccountNotFound'
