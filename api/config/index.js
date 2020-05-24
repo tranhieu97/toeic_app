@@ -11,7 +11,6 @@ const app = {
     name: process.env.DATABASE_NAME,
     userName: process.env.DATABASE_USERNAME,
     pass: process.env.DATABASE_PASS,
-
   },
   admin : {
     fullName: process.env.ADMIN_FULL_NAME, 

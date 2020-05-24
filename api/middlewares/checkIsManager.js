@@ -49,4 +49,4 @@ async function checkIsManager (req, res, next) {
   return next()
 }
 
-export default checkIsAdmin
+export default checkIsManager

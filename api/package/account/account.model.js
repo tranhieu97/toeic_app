@@ -54,7 +54,7 @@ const getAccountByUsername = async (username) => {
 }
 
 const insertAccount = async (acc) => {
-    const sql = `INSERT INTO account (username, password, full_name, email, role_id, status) VALUES ("${acc.username}", "${acc.password}", "${acc.fullName}","${acc.email}", ${acc.roleId}), "active"`;
+    const sql = `INSERT INTO account (username, password, full_name, email, role_id, status) VALUES ("${acc.username}", "${acc.password}", "${acc.fullName}","${acc.email}", ${acc.roleId}, "active")`;
     console.log(sql)
     
     try {
