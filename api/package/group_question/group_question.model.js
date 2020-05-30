@@ -44,7 +44,8 @@ const insertGroupQuestion = async (groupQuestion) => {
     console.log(sql);
     
     try {
-        await conn.query(sql);
+        const result = await conn.query(sql);
+        return result.insertId;
         //console.log('affectedRows: ' + result.affectedRows);
     } catch (err) {
         throw err;
@@ -81,7 +82,7 @@ const updateGroupQuestion = async (groupQuestionId, updateGroupQuestion) => {
     }
 }
 
-module.exports = {
+export default {
     getAllGroupQuestions,
     getGroupQuestionById,
     getGroupQuestionByTestId,
