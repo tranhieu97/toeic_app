@@ -81,11 +81,25 @@ const updateGroupQuestion = async (groupQuestionId, updateGroupQuestion) => {
     }
 }
 
+const  testGetGroupQuestion = async () => {
+    try {
+        
+        const sql = `SELECT  gq.group_question_id, gq.text, gq.audio_path, gq.image_path, JSON_OBJECT('question_id',q.question_id, 'text',  q.text) AS questions FROM group_question As gq
+        LEFT JOIN question As q ON gq.group_question_id = q.group_question_id GROUP BY gq.group_question_id`
+
+        const result = await conn.query(sql)
+        console.log(JSON.parse(result))
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     getAllGroupQuestions,
     getGroupQuestionById,
     getGroupQuestionByTestId,
     insertGroupQuestion,
     deleteGroupQuestion,
-    updateGroupQuestion
+    updateGroupQuestion,
+    testGetGroupQuestion
 }

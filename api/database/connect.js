@@ -28,6 +28,8 @@ pool.getConnection((err, connection) => {
     if (connection) {
         connection.release();
     } 
+
+    console.log('Database connected')
     
     return
 });

@@ -1,7 +1,38 @@
-const conn = require('../../database/connect');
+import conn from '../../database/connect'
+import { buildQuery, buildUpdateQuery } from '../../helper/buildQuery'
+import joi, { number } from 'joi'
+
+const createTestSchema = joi.object().keys({
+    partId: joi.number().required(),
+    testName: joi.string().length(50).required()
+})
+
+const updateTestSchema = joi.object().keys({
+    partId: joi.number(),
+    testName: joi.string().length(50)
+})
+
+const testSchema = {
+    createTestSchema,
+    updateTestSchema,
+}
 
 const getAllTests = async () => {
     const sql = `SELECT * FROM test`;
+    console.log(sql);
+
+    try {
+        let result = await conn.query(sql);
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+const getManyTests = async (conditions) => {
+
+    const nativeQuery = buildQuery(conditions)
+    const sql = `SELECT * FROM test  ${nativeQuery}`;
     console.log(sql);
 
     try {
@@ -54,8 +85,17 @@ const insertTest = async (test) => {
     console.log(sql);
 
     try {
-        await conn.query(sql);
-        //console.log('affectedRows: ' + result.affectedRows);
+        const result = await conn.query(sql);
+        const insertId = result.insertId
+
+        if (!insertId) {
+            throw {
+                code: 400,
+                name: 'QueryError'
+            }
+        }
+
+        return insertId
     } catch (err) {
         throw err;
     }
@@ -67,6 +107,7 @@ const deleteTest = async (testId) => {
 
     try {
         await conn.query(sql);
+        return true
         //console.log('affectedRows: ' + result.affectedRows);
     } catch (err) {
         throw err;
@@ -74,22 +115,31 @@ const deleteTest = async (testId) => {
 }
 
 const updateTest = async (testId, updateTest) => {
-    const sql = `UPDATE test SET name = "${updateTest.testName}", part_id = ${updateTest.partId} WHERE test_id = ${testId}`;
+    const updateString = buildUpdateQuery(updateTest, mapColumnNames)
+    const sql = `UPDATE test SET ${updateString} WHERE test_id = ${testId}`;
     console.log(sql);
 
     try {
         await conn.query(sql);
+        return true
     } catch (err) {
         throw err;
     }
 }
 
-module.exports = {
+const mapColumnNames = {
+    testId: 'test_id',
+    testName: 'name',
+    partId: 'part_id'
+}
+export default {
     getAllTests,
     getTestByName,
     getTestById,
     getTestByPartId,
     insertTest,
     deleteTest,
-    updateTest
+    updateTest,
+    getManyTests,
+    testSchema,
 }
