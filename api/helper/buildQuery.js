@@ -47,3 +47,24 @@ export const buildUpdateQuery = (updateData, mapColumnNames) => {
   
 }
 
+export const buildInsertManyQuery = (data, mapColumnNames) => {
+  const keyModel = Object.keys(mapColumnNames)
+
+  let mathchData = []
+
+  mathchData = data.map( item => {
+      let insertRow = []
+
+      keyModel.forEach( eachKey => {
+        insertRow.push(item[eachKey])
+      })
+
+      return `(${insertRow.join(', ')})`
+  })
+
+  console.log(mathchData.join(', '))
+
+  return mathchData.join(', ')
+
+}
+

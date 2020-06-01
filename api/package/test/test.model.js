@@ -4,12 +4,12 @@ import joi, { number } from 'joi'
 
 const createTestSchema = joi.object().keys({
     partId: joi.number().required(),
-    testName: joi.string().length(50).required()
+    testName: joi.string().max(50).required()
 })
 
 const updateTestSchema = joi.object().keys({
     partId: joi.number(),
-    testName: joi.string().length(50)
+    testName: joi.string().max(50)
 })
 
 const testSchema = {

@@ -50,7 +50,8 @@ async function update (req, res) {
     if(isValidData.error) {
       throw {
         code: 400,
-        message: isValidData.error
+        name: validationData.error.name,
+        message: validationData.error.details,
       }
     }
 
@@ -87,6 +88,15 @@ async function createTest (req, res) {
   try {
     const {...createData } = req.body
     
+    const validationData = validate(createData, testModel.testSchema.createTestSchema)
+
+    if(validationData.error) {
+      throw {
+        code: 400,
+        name: validationData.error.name,
+        message: validationData.error.details,
+      }
+    }
     const insertId = await testModel.insertTest(createData)
 
     const newTest = {
