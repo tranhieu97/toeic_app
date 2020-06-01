@@ -3,10 +3,10 @@ import accountModel from './account.model'
 
 const findOne = async ({query, cridentials}) => {
   return new Promise( ( resolve, reject ) => {
-    const account = accountModel.getAccountByID(query.accountID) 
+    const account = accountModel.getAccountById(query.accountID) 
 
     if (account) {
-      resolve(account)
+      return resolve(account)
     }
 
     const error = {
@@ -14,7 +14,7 @@ const findOne = async ({query, cridentials}) => {
       name: 'AccountNotFound'
     }
 
-    reject(error)
+    return reject(error)
   })
 }
 
@@ -70,7 +70,7 @@ const findManyAccount = async ({query, cridentials}) => {
 
 const updateOne = async (account, accountID) => {
   return new Promise( async (resolve, reject) => {
-    const findAccount = await accountModel.getAccountByID(accountID)
+    const findAccount = await accountModel.getAccountById(accountID)
 
     if (!findAccount) {
       const error = {
@@ -97,7 +97,7 @@ const updateOne = async (account, accountID) => {
 
 const deleteOne = async (accountID) => {
   return new Promise ( async (resolve, reject ) => {
-    const findAccount = await accountModel.getAccountByID(accountID)
+    const findAccount = await accountModel.getAccountById(accountID)
 
     if(!findAccount) {
       let error = {
@@ -117,7 +117,7 @@ const deleteOne = async (accountID) => {
 
 const changeLock = async (accountID) => {
   return new Promise ( async (resolve, reject) => {
-    const account = await accountModel.getAccountByID(accountID) 
+    const account = await accountModel.getAccountById(accountID) 
 
     if(!account) {
       let error = {
