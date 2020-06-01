@@ -311,7 +311,7 @@ async function getAccount (req, res) {
 
     return res.status(200).json({
       isSuccess: true,
-      message: 'get account',
+      message: 'get account successfuly',
       data: account
     })
 
