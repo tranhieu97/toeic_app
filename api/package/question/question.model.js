@@ -44,7 +44,8 @@ const insertQuestion = async (question) => {
     console.log(sql);
 
     try {
-        await conn.query(sql);
+        const result = await conn.query(sql);
+        return result.insertId;
         //console.log('affectedRows: ' + result.affectedRows);
     } catch (err) {
         throw err;
