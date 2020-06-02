@@ -28,7 +28,12 @@ const getQuestion = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(404).json(error);
+
+        console.log(error)
+        return res.status(404).json({
+            code: error.code,
+            name: error.name,
+        });
     }
 }
 
@@ -76,7 +81,10 @@ const updateQuestion = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(404).json(error);
+        return res.status(404).json({
+            code: error.code,
+            name: error.name,
+        });
     }
 }
 
