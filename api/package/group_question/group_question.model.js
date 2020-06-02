@@ -95,8 +95,8 @@ const  testGetGroupQuestion = async () => {
     }
 }
 
+
 module.exports = {
-    getAllGroupQuestions,
     getGroupQuestionById,
     getGroupQuestionByTestId,
     insertGroupQuestion,

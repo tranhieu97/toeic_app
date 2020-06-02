@@ -1,4 +1,6 @@
-const conn = require('../../database/connect');
+import conn from '../../database/connect'
+import { buildInsertManyQuery } from '../../helper/buildQuery'
+import joi from 'joi'
 
 const getAllAnswers = async () => {
     const sql = `SELECT * FROM answer`;
@@ -34,6 +36,22 @@ const getAnswerByQuestionId = async (questionId) => {
     } catch (err) {
         throw err;
     }
+}
+
+const insertManyAnswers = async (answers) => {
+    const queryInsertMany = buildInsertManyQuery(answers)
+    const sql = `INSERT INTO answer (question_id, text, is_right, explanation)
+    VALUES ${queryInsertMany}`
+
+    console.log(sql);
+
+    try {
+        const result = await conn.query(sql);
+        return result
+    } catch (err) {
+        throw err;
+    }
+
 }
 
 const insertAnswer = async (answer) => {
@@ -76,16 +94,60 @@ const updateAnswer = async (answerId, updateAnswer) => {
 
     try {
         await conn.query(sql);
+        return true
     } catch (err) {
         throw err;
     }
 }
 
-module.exports = {
+const deleteManyAnswers = async questionId => {
+    const sql = `DELETE FROM answer WHERE question_id = ${questionId} `
+    console.log(sql)
+
+    try {
+        await conn.query(sql)
+
+        return true
+    } catch (error) {
+        throw error
+    }
+}
+
+const mapColumnTableAnswers = {
+    questionId: 'question_id',
+    text: 'text', 
+    isRight: 'is_right',
+    explanation: 'explanation'
+}
+
+
+const createAnswerSchema = joi.object().keys({
+    questionId: joi.number().required(),
+    text: joi.string().required(),
+    isRight: joi.boolean().required(),
+    explanation: joi.string()
+})
+
+const updateAnswerSchema = joi.object().keys({
+    questionId: joi.number(),
+    text: joi.string(),
+    isRight: joi.boolean(),
+    explanation: joi.string()
+})
+
+const answerSchema = {
+    createAnswerSchema,
+    updateAnswerSchema,
+}
+export default {
     getAllAnswers,
     getAnswerById,
     getAnswerByQuestionId,
     insertAnswer,
     deleteAnswer,
-    updateAnswer
+    updateAnswer,
+    insertManyAnswers,
+    deleteManyAnswers,
+    mapColumnTableAnswers,
+    answerSchema,
 }
