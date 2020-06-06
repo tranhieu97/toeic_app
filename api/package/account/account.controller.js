@@ -67,6 +67,7 @@ async function signIn (req, res) {
     const isAdmin = account.role_name == 'admin'? true: false
     const isManager = account.role_name == 'editor'? true: false
     const payload = {
+      userID: account.account_id,
       username: account.username,
       role: account.role_id,
       isAdmin,
