@@ -14,7 +14,7 @@ const getAllQuestions = async () => {
 
 const getQuestionById = async (questionId) => {
     const sql = `SELECT q.question_id as questionId, q.group_question_id as groupQuestionId, q.text as text, q.audio_path as audioPath, q.image_path as imagePath, 
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT('text', a.text, 'isRight', a.is_right, 'explanation', a.explanation)),"]") as answers 
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT('answerId', a.answer_id, 'text', a.text, 'isRight', a.is_right, 'explanation', a.explanation)),"]") as answers 
     FROM question  as q 
     LEFT JOIN answer as a ON q.question_id = a.question_id
     WHERE q.question_id = ${questionId}
@@ -40,7 +40,7 @@ const getQuestionById = async (questionId) => {
 
 const getQuestionByGroupQuestionId = async (groupQuestionId) => {
     const sql = `SELECT q.question_id as questionId, q.group_question_id as groupQuestionId, q.text as text, q.audio_path as audioPath, q.image_path as imagePath, 
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT('text', a.text, 'isRight', a.is_right, 'explanation', a.explanation)),"]") as answers 
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT('answerId', a.answer_id, 'text', a.text, 'isRight', a.is_right, 'explanation', a.explanation)),"]") as answers 
     FROM question  as q 
     LEFT JOIN answer as a ON q.question_id = a.question_id
     WHERE q.group_question_id = ${groupQuestionId}

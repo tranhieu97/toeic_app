@@ -2,7 +2,10 @@ import gqModel from './group_question.model';
 
 const getListGroupQuestions = async (req, res) => {
     try {
-        const groupQuestions = await gqModel.getAllGroupQuestions();
+
+        const query = req.query
+        console.log(query)
+        const groupQuestions = await gqModel.getManyGroupQuestion(query);
 
         return res.status(200).json({
             isSuccess: true,

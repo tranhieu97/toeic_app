@@ -1,5 +1,15 @@
 const conn = require('../../database/connect');
+import questionModel from '../question/question.model'
+import { buildQuery } from '../../helper/buildQuery';
 
+
+const mapNameColumn = {
+    groupQuestionId: 'group_question_id',
+    text: 'text',
+    imagePath: 'image_path',
+    audioPath: 'audio_path',
+    testId: 'test_id',
+}
 const getAllGroupQuestions = async () => {
     const sql = `SELECT * FROM group_question`;
     console.log(sql);
@@ -9,6 +19,35 @@ const getAllGroupQuestions = async () => {
         return result;
     } catch (err) {
         throw err;
+    }
+}
+
+const getManyGroupQuestion = async (query) => {
+    try {
+        const queryStr = buildQuery(query, mapNameColumn)
+        const sql = `SELECT * FROM group_question ${queryStr}`
+
+        console.log(sql)
+
+        const groupQuestions = await conn.query(sql)
+        
+        if(groupQuestions && groupQuestions.length > 0) {
+            let result = []
+            for(const item of groupQuestions) {
+                item.questions = await questionModel.getQuestionByGroupQuestionId(item[mapNameColumn.groupQuestionId])
+                result.push(item)
+            }
+
+            return result
+        }
+
+        throw {
+            code: 404,
+            name: 'GroupQuestionNotFound'
+        }
+
+    } catch (error) {
+        throw error
     }
 }
 
@@ -96,11 +135,12 @@ const  testGetGroupQuestion = async () => {
 }
 
 
-module.exports = {
+export default {
     getGroupQuestionById,
     getGroupQuestionByTestId,
     insertGroupQuestion,
     deleteGroupQuestion,
     updateGroupQuestion,
-    testGetGroupQuestion
+    testGetGroupQuestion,
+    getManyGroupQuestion,
 }

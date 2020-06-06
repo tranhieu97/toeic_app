@@ -1,5 +1,11 @@
-export const buildQuery = (conditions, limit, cursor) => {
+export const buildQuery = ({limit, cursor, ...conditions}, mapColumnNames) => {
+
+  console.log(conditions)
   if (!conditions) {
+    if (limit) {
+      return  `LIMIT ${limit}`
+    }
+
     return ''
   }
 
@@ -10,16 +16,17 @@ export const buildQuery = (conditions, limit, cursor) => {
   }
 
   const query = []
+
   keyConditions.forEach( key => {
-    const value = (typeof conditions[key] === 'string') ? `"${conditions[key]}"`: `${conditions[key]}`
-    const str = `${key} = ` +  value
+    const value = (typeof conditions[key] === 'string') && key.indexOf('Id') === -1 ? `"${conditions[key]}"`: `${conditions[key]}`
+    const str = `${mapColumnNames[key]} = ` +  value
     query.push(str)
   })
 
   let whereClause = `WHERE ${query.join(' AND ')}`
 
   if (limit) {
-    whereClause += `, limit = ${limit}`
+    whereClause += ` LIMIT ${limit}`
   }
 
   return whereClause
@@ -67,4 +74,5 @@ export const buildInsertManyQuery = (data, mapColumnNames) => {
   return mathchData.join(', ')
 
 }
+
 
