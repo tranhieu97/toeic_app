@@ -37,7 +37,11 @@ const getGroupQuestion = async (req, res) => {
 
 const insertGroupQuestion = async (req, res) => {
     try {
-        const { text, imagePath, audioPath, testId } = req.body;
+        const text, imagePath, audioPath, testId;
+        text = req.body.text;
+        testId = req.body.testId;
+        imagePath = req.files.imagePath[0].filename;
+        audioPath = req.files.audioPath[0].filename; 
         //validate
 
         const insertId = await gqModel.insertGroupQuestion({
