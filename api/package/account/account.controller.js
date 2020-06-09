@@ -62,8 +62,6 @@ async function signIn (req, res) {
 
     delete account.password 
 
-    console.log(account)
-
     const isAdmin = account.role_name == 'admin'? true: false
     const isManager = account.role_name == 'editor'? true: false
     const payload = {
@@ -84,7 +82,6 @@ async function signIn (req, res) {
     })
 
   } catch (error) {
-    console.log(error)
     return res.status(500).json({
       message: 'Internal server error'
     })
@@ -248,8 +245,6 @@ async function createAccount (req, res) {
       password: hashPass,
       roleId,
     }
-
-    console.log(newAccount)
 
     await accountService.createOne({
       credentials,

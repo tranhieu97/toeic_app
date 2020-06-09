@@ -1,6 +1,5 @@
 export const buildQuery = ({limit, cursor, ...conditions}, mapColumnNames) => {
 
-  console.log(conditions)
   if (!conditions) {
     if (limit) {
       return  `LIMIT ${limit}`
@@ -63,13 +62,15 @@ export const buildInsertManyQuery = (data, mapColumnNames) => {
       let insertRow = []
 
       keyModel.forEach( eachKey => {
-        insertRow.push(item[eachKey])
+        let expect = typeof item[eachKey] === 'string' ? `"${item[eachKey]}"`: item[eachKey]
+        if (typeof item[eachKey] === 'undefined'|| !item[eachKey]) {
+          expect = 'null'
+        }
+        insertRow.push(expect)
       })
 
       return `(${insertRow.join(', ')})`
   })
-
-  console.log(mathchData.join(', '))
 
   return mathchData.join(', ')
 

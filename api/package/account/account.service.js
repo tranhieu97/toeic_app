@@ -6,6 +6,8 @@ const findOne = async ({query, cridentials}) => {
     const account = accountModel.getAccountById(query.accountID) 
 
     if (account) {
+      delete account.password
+
       return resolve(account)
     }
 
@@ -81,7 +83,6 @@ const updateOne = async (account, accountID) => {
     }
 
     const isUpdate = await accountModel.updateAccount(accountID, account) 
-    console.log(isUpdate)
 
     if (isUpdate) {
       resolve(true)
@@ -128,7 +129,6 @@ const changeLock = async (accountID) => {
       reject(error)
       
     }
-    console.log(account)
 
     const status =(account.status === 'active')? 'lock': 'active'
     await accountModel.updateLock(accountID, status)

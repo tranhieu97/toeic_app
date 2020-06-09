@@ -37,7 +37,7 @@ const getQuestion = async (req, res) => {
     }
 }
 
-const insertQuestion = async (req, res) => {
+const createQuestion = async (req, res) => {
     try {
         const { groupQuestionId, text, imagePath, audioPath, explanation } = req.body;
         //validate
@@ -105,7 +105,7 @@ const deleteQuestion = async (req, res) => {
 export default {
     getListQuestions,
     getQuestion,
-    insertQuestion,
+    createQuestion,
     updateQuestion,
     deleteQuestion
 }

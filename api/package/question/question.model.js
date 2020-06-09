@@ -51,10 +51,7 @@ const getQuestionByGroupQuestionId = async (groupQuestionId) => {
         let result = await conn.query(sql);
 
         if(!result || !result[0]) {
-            throw {
-                code: 404,
-                name: 'QuestionsNotFound'
-            }
+            return []
         }
 
         result = result.map( each => {

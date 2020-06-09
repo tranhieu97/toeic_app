@@ -5,12 +5,12 @@ import validate from '../../utils/validator'
 
 async function getListTest (req, res) {
   try {
-    const { limit, sortBy, cursor, ...conditions} = req.body
+    const conditions = req.query
 
     const listTest = await testModel.getManyTests(conditions)
 
     return res.status(200).json({
-      countTotal: 0,
+      countTotal: listTest.length,
       list: listTest
     })
   } catch (error) {
