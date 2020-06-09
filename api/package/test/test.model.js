@@ -4,12 +4,12 @@ import joi, { number } from 'joi'
 
 const createTestSchema = joi.object().keys({
     partId: joi.number().required(),
-    testName: joi.string().max(50).required()
+    name: joi.string().max(50).required()
 })
 
 const updateTestSchema = joi.object().keys({
     partId: joi.number(),
-    testName: joi.string().max(50)
+    name: joi.string().max(50)
 })
 
 const testSchema = {
@@ -31,8 +31,8 @@ const getAllTests = async () => {
 
 const getManyTests = async (conditions) => {
 
-    const nativeQuery = buildQuery(conditions)
-    const sql = `SELECT * FROM test  ${nativeQuery}`;
+    const nativeQuery = buildQuery(conditions, mapColumnNames)
+    const sql = `SELECT test_id as testId, name, part_id as partId FROM test  ${nativeQuery}`;
     console.log(sql);
 
     try {
@@ -43,9 +43,9 @@ const getManyTests = async (conditions) => {
     }
 }
 
-const getTestByName = async (testName) => {
+const getTestByName = async (name) => {
 
-    const sql = `SELECT * FROM test WHERE name = "${testName}"`;
+    const sql = `SELECT * FROM test WHERE name = "${name}"`;
     console.log(sql);
 
     try {
@@ -81,7 +81,7 @@ const getTestByPartId = async (partId) => {
 }
 
 const insertTest = async (test) => {
-    const sql = `INSERT INTO test (name, part_id) VALUES ("${test.testName}", ${test.partId})`;
+    const sql = `INSERT INTO test (name, part_id) VALUES ("${test.name}", ${test.partId})`;
     console.log(sql);
 
     try {
@@ -129,7 +129,7 @@ const updateTest = async (testId, updateTest) => {
 
 const mapColumnNames = {
     testId: 'test_id',
-    testName: 'name',
+    name: 'name',
     partId: 'part_id'
 }
 export default {

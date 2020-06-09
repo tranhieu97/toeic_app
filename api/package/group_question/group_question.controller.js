@@ -1,10 +1,11 @@
 import gqModel from './group_question.model';
+import groupQuestionService from './group_question.service'
+import fs from 'fs'
 
 const getListGroupQuestions = async (req, res) => {
     try {
 
         const query = req.query
-        console.log(query)
         const groupQuestions = await gqModel.getManyGroupQuestion(query);
 
         return res.status(200).json({
@@ -35,27 +36,25 @@ const getGroupQuestion = async (req, res) => {
     }
 }
 
-const insertGroupQuestion = async (req, res) => {
+const createGroupQuestion = async (req, res) => {
     try {
-        const text, imagePath, audioPath, testId;
-        text = req.body.text;
-        testId = req.body.testId;
-        imagePath = req.files.imagePath[0].filename;
-        audioPath = req.files.audioPath[0].filename; 
-        //validate
+        const { text, testId, questions } = req.body;
 
-        const insertId = await gqModel.insertGroupQuestion({
+        const newGroupQuestion = {
             text,
-            imagePath,
-            audioPath,
-            testId
-        });
+            testId,
+            imagePath: req.imagePath,
+            audioPath: req.audioPath,
+            questions: JSON.parse(questions)
+        }
+
+        const insertId = await groupQuestionService.createOneGroupQuestion(newGroupQuestion)
 
         return res.status(200).json({
             isSuccess: true,
             message: 'insert group question successfully',
             insertId: insertId
-        });
+        })
     } catch (error) {
         return res.status(400).json(error);
     }
@@ -64,18 +63,29 @@ const insertGroupQuestion = async (req, res) => {
 const updateGroupQuestion = async (req, res) => {
     try {
         const { groupQuestionId } = req.params;
-        const { text, imagePath, audioPath, testId } = req.body;
+        const { text, testId, oldImagePath, oldAudioPath, questions } = req.body
 
-        //validate
+        const { imagePath, audioPath, filePath } = req
 
-        await gqModel.updateGroupQuestion(groupQuestionId, {
+        if( oldImagePath && imagePath && filePath ) {
+            await fs.unlink(`${filePath}+${oldImagePath}`)
+        }
+
+        if( oldAudioPath && audioPath && filePath ) {
+            await fs.unlink(`${filePath}+${oldAudioPath}`)
+        }
+
+        const groupQuestionData = {
             text,
+            testId,
             imagePath,
             audioPath,
-            testId
-        });
+            questions,
+        }
 
-        return res.status(200).json({
+        await gqModel.updateGroupQuestion(groupQuestionId, groupQuestionData)
+
+        return res.status(201).json({
             isSuccess: true,
             message: 'update group question successfully'
         });
@@ -102,7 +112,7 @@ const deleteGroupQuestion = async (req, res) => {
 export default {
     getListGroupQuestions,
     getGroupQuestion,
-    insertGroupQuestion,
+    createGroupQuestion,
     updateGroupQuestion,
     deleteGroupQuestion
 }

@@ -39,7 +39,8 @@ const getAnswerByQuestionId = async (questionId) => {
 }
 
 const insertManyAnswers = async (answers) => {
-    const queryInsertMany = buildInsertManyQuery(answers)
+    const queryInsertMany = buildInsertManyQuery(answers, mapColumnTableAnswers)
+    console.log(queryInsertMany)
     const sql = `INSERT INTO answer (question_id, text, is_right, explanation)
     VALUES ${queryInsertMany}`
 

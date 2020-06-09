@@ -30,7 +30,7 @@ const getAccountByEmail = async (email) => {
 
 
 const getAccountById = async (accountId) => {
-    const sql = `SELECT * FROM account  WHERE account_id = ${accountId}`;
+    const sql = `SELECT * FROM account LEFT JOIN role ON role.role_id = account.role_id WHERE account_id = ${accountId}`;
     console.log(sql);
 
     try {

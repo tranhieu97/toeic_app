@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt'
 config()
 
 const app = {
+  file: {
+    sizeLimit: 8*1024*1024
+  },
   port : process.env.PORT || 4000,
   secret: process.env.SECRET,
   database: {

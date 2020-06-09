@@ -1,6 +1,7 @@
 const conn = require('../../database/connect');
 import questionModel from '../question/question.model'
 import { buildQuery } from '../../helper/buildQuery';
+import answerModel from '../answer/answer.model';
 
 
 const mapNameColumn = {
@@ -57,6 +58,10 @@ const getGroupQuestionById = async (groupQuestionId) => {
     
     try {
         let result = await conn.query(sql);
+
+        const questions = await questionModel.getQuestionByGroupQuestionId(groupQuestionId)
+        result[0].questions = questions
+
         return result[0];
     } catch (err) {
         throw err;
@@ -116,6 +121,27 @@ const updateGroupQuestion = async (groupQuestionId, updateGroupQuestion) => {
     
     try {
         await conn.query(sql);
+
+        if (!updateGroupQuestion.questions || Array.isArray(updateGroupQuestion.questions)) {
+            return true
+        }
+
+        for ( const question of questions ) {
+
+            const { questionId, answers, ...updateQuestionData} = question
+            await questionModel.updateQuestion(questionId, updateQuestionData )
+
+            if(!answers || !Array.isArray(answers)) {
+                return true
+            }
+
+            for (const answer of answers) {
+                const { answerId, updateAnswer} = answer
+                await answerModel.updateAnswer(answerId, updateAnswer)
+            }
+        }
+
+        return true
     } catch (err) {
         throw err;
     }
@@ -128,7 +154,6 @@ const  testGetGroupQuestion = async () => {
         LEFT JOIN question As q ON gq.group_question_id = q.group_question_id GROUP BY gq.group_question_id`
 
         const result = await conn.query(sql)
-        console.log(JSON.parse(result))
     } catch (error) {
         console.log(error)
     }
