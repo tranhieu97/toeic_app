@@ -6,6 +6,8 @@ const getListGroupQuestions = async (req, res) => {
     try {
 
         const query = req.query
+        console.log(query)
+
         const groupQuestions = await gqModel.getManyGroupQuestion(query);
 
         return res.status(200).json({
@@ -16,7 +18,7 @@ const getListGroupQuestions = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(401).json(error);
+        return res.status(404).json(error);
     }
 }
 
