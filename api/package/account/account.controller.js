@@ -261,16 +261,16 @@ async function createAccount (req, res) {
 async function updateAccount (req, res) {
   try {
     const credentials = req.user
-    const { fullName, username, email, password, roleID } = req.body
+    const { fullName, username, email, roleId } = req.body
     const { accountID } = req.params
-    const hashPass = await bcrypt.hash(password, 10)
     const updateAccount = {
       fullName,
       username,
       email,
-      password: hashPass,
-      role: roleID,
+      roleId: roleId,
     }
+
+
     const isUpdate = await accountService.updateOne(updateAccount, accountID) 
 
     if (!isUpdate) {
@@ -304,6 +304,8 @@ async function getAccount (req, res) {
         name: 'AccountNotFound'
       })
     }
+
+    delete account.password
 
     return res.status(200).json({
       isSuccess: true,

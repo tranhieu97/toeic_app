@@ -56,7 +56,11 @@ const findManyAccount = async ({query, cridentials}) => {
 
   return new Promise ( (resolve, reject) => {
     if (accounts && accounts.length) {
-      resolve(accounts)
+
+      resolve (accounts.map( each => {
+        delete each.password
+        return each
+      }))
     }
 
     const error = {

@@ -1,4 +1,13 @@
 const conn = require('../../database/connect');
+import joi from 'joi'
+
+const accountSchema = joi.object().keys({
+    accountId: joi.number(),
+    fullName: joi.string().required(),
+    email: joi.string(),
+    password: joi.string().required(),
+    roleId: joi.number().required(),
+})
 
 const getAllAccounts = async () => {
     const sql = `SELECT * FROM account INNER JOIN role ON account.role_id = role.role_id`;
@@ -92,9 +101,9 @@ const updateAccount = async (accountId, updateAccount) => {
     const sql = `
     UPDATE account SET
     username = "${updateAccount.username}",
-    password = "${updateAccount.password}",
     full_name = "${updateAccount.fullName}",
-    email = "${updateAccount.email}"
+    email = "${updateAccount.email}",
+    role_id = ${updateAccount.roleId}
     WHERE account_id = ${accountId}
     `;
     console.log(sql);

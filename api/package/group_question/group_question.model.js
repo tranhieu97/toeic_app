@@ -11,6 +11,7 @@ const mapNameColumn = {
     audioPath: 'audio_path',
     testId: 'test_id',
 }
+
 const getAllGroupQuestions = async () => {
     const sql = `SELECT * FROM group_question`;
     console.log(sql);

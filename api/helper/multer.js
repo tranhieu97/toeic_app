@@ -22,7 +22,12 @@ const storage = multer.diskStorage({
     cb(null, des)
   },
   filename : (req, file , cb) => {
-    const fileName = file.originalname
+    let fileName = file.originalname
+
+    const ext = path.extname(fileName)
+    if (fileName.length > 20 ) {
+      fileName = 'toeic_custom.'+ext
+    }
     const finalFileName = `${Date.now()}-${fileName}`
 
     if (file.fieldname === 'audioPath') {
